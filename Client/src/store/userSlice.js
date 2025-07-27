@@ -4,6 +4,9 @@ const userSlice = createSlice({
     name: "user",
     initialState: {
         isAuthenticated: false,
+        role: {
+            user: false
+        },
         user: null,
         loading: false,
         error: null,

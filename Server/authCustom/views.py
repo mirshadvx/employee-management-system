@@ -79,11 +79,13 @@ def is_authenticated(request):
 
 class Register(APIView):
     permission_classes = [AllowAny]
-    
+    authentication_classes = []
+
     def post(self, request):
-        serialzier = RegisterSerializer(data=request.data)
-        if serialzier.is_valid():
-            serialzier.save()
-            return Response({'success': True, 'message': 'Register Successfully'}, status=status.HTTP_201_CREATED)
-        return Response(serialzier.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success': True, 'message': 'Registered Successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
