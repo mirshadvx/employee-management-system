@@ -4,6 +4,7 @@ from .serializers import DepartmentSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from .filters import DepartmentFilter
 
 class DepartmentView(APIView):
     permission_classes = [IsAuthenticated]
@@ -15,6 +16,11 @@ class DepartmentView(APIView):
                 serializer = DepartmentSerializer(department)
                 return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
             else:
+                filterSet = DepartmentFilter(request.query_params, queryset=Department.objects.all())
+                if filterSet.is_valid():
+                    department = filterSet.qs
+                else:
+                    department = Department.objects.all()
                 departments = Department.objects.all()
                 serializer = DepartmentSerializer(departments, many=True)
                 return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)

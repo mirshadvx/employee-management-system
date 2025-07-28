@@ -29,7 +29,7 @@ class DynamicField(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='fields')
     label = models.CharField(max_length=100)
     field_type = models.CharField(max_length=20, choices=FIELD_TYPES)
-    field_options = models.JSONField(blank=True, null=True, help_text="Used for select fields. Format: {\"choices\": [\"Option1\", \"Option2\"]}")
+    field_options = models.JSONField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
