@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from .models import Department
-from .serializers import DepartmentSerializer
+from .serializers import DepartmentSerializer, DynamicFieldSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -61,3 +61,27 @@ class DepartmentView(APIView):
             return Response({'success': False, 'message': 'department not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'success': False, 'message': 'department deletion failed', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class DynamicFieldCreation(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            department_id = request.data.get('department')
+            fields_data = request.data.get('fields',[])
+            department = Department.objects.get(id=department_id)
+            print(request.data)
+            for field_data in fields_data:
+                field_data['department'] = department.id
+                serializer = DynamicFieldSerializer(data=field_data)
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    return Response({"success": False, "message": "form creation faild"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"success": True, "message": "Form created successfully"}, status=status.HTTP_201_CREATED )
+                    
+        except Department.DoesNotExist:
+            return Response({"error": "Department not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'success': False, 'message': 'form creation faild', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -20,7 +20,7 @@ class DynamicField(models.Model):
         ('date', 'Date'),
         ('email', 'Email'),
         ('password', 'Password'),
-        ('boolean', '(True/False)'),
+        ('boolean', 'Boolean'),
         ('select', 'Dropdown'),
         ('textarea', 'Multiline'),
         ('file', 'File Upload'),
@@ -45,7 +45,7 @@ class Employee(models.Model):
 class EmployeeFieldData(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='field_data')
     field = models.ForeignKey(DynamicField, on_delete=models.CASCADE)
-    value = models.TextField()
+    value = models.JSONField()
 
     def __str__(self):
         return f"{self.field.label} - {self.value}"
