@@ -18,3 +18,10 @@ class DepartmentFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = ['id', 'fields']
+        
+class DepartmentFormSerializer(serializers.ModelSerializer):
+    fields = DynamicFieldSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'fields']

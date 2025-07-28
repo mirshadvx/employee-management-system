@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from .models import Department
-from .serializers import DepartmentSerializer, DynamicFieldSerializer
+from .serializers import DepartmentSerializer, DynamicFieldSerializer, DepartmentFormSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .filters import DepartmentFilter
+from django.shortcuts import get_object_or_404
 
 class DepartmentView(APIView):
     permission_classes = [IsAuthenticated]
@@ -85,3 +86,21 @@ class DynamicFieldCreation(APIView):
             return Response({"error": "Department not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'success': False, 'message': 'form creation faild', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class DepartmentFormStructure(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, id):
+        try:
+            department = get_object_or_404(Department, id=id)
+            serializer = DepartmentFormSerializer(department)
+            return Response({
+            'department_id': department.id,
+            'department_name': department.name,
+            'department_label': department.label,
+            "fields": serializer.data['fields']
+        }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'success': False, 'message': "error retrieving department form structure",
+                             'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
