@@ -174,7 +174,6 @@ const EmployeeDetails = () => {
                 setEmployees(employeesResponse.data.data);
             }
         } catch (error) {
-            console.error(editingEmployee ? "Error updating employee:" : "Error adding employee:", error);
             showError(`Failed to ${editingEmployee ? "update" : "add"} employee. Please check the form data.`);
         }
     };

@@ -20,7 +20,7 @@ const authAPI = {
     login: (credentials) => api.post("auth/login/", credentials),
     refreshToken: () => api.post("auth/token/refresh/"),
     logout: () => api.post("auth/logout/"),
-    isAuthenticated: () => api.get("auth/authenticated/"),
+    isAuthenticated: () => api.post("auth/authenticated/"),
     register: (credentials) => api.post("auth/register/", credentials),
 };
 

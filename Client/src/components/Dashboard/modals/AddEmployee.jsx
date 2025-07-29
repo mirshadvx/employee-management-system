@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import api from "../../../services/api";
 import { useToast } from "../../../hooks/useToast";
 
 const AddEmployee = ({ isOpen, onClose, newEmployee, handleInputChange, handleSubmit, departmentId, isEditing }) => {
     const [formStructure, setFormStructure] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
     const { showError, showSuccess } = useToast();
 
     useEffect(() => {
@@ -43,6 +44,10 @@ const AddEmployee = ({ isOpen, onClose, newEmployee, handleInputChange, handleSu
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const toggleShowPassword = () => {
+        setShowPassword(!showPassword);
     };
 
     const renderField = (field) => {
@@ -93,14 +98,23 @@ const AddEmployee = ({ isOpen, onClose, newEmployee, handleInputChange, handleSu
                 );
             case "password":
                 return (
-                    <input
-                        type="password"
-                        name={field.label}
-                        value={newEmployee[field.label] || ""}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8FA68E]"
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            name={field.label}
+                            value={newEmployee[field.label] || ""}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8FA68E]"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={toggleShowPassword}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                        >
+                            {showPassword ? <EyeOff /> : <Eye />}
+                        </button>
+                    </div>
                 );
             case "boolean":
                 return (
@@ -170,7 +184,6 @@ const AddEmployee = ({ isOpen, onClose, newEmployee, handleInputChange, handleSu
 
     if (!isOpen) return null;
 
-    // Sort fields by order before rendering
     const sortedFields = formStructure?.fields ? [...formStructure.fields].sort((a, b) => a.order - b.order) : [];
 
     return (
