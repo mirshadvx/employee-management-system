@@ -1,4 +1,5 @@
 import axios from "axios";
+
 const isDev = import.meta.env.VITE_DEBUG === "true";
 
 const api = axios.create({
@@ -23,34 +24,39 @@ const authAPI = {
     register: (credentials) => api.post("auth/register/", credentials),
 };
 
-// api.interceptors.response.use(
-//     (response) => response,
-//     async (error) => {
-//         const originalRequest = error.config;
+const userAPI = {
+    fetchUserDetails: () => api.get("auth/profile/"),
+    updateProfilePicture: (formData) =>
+        api.put("auth/profile/", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }),
+    changePassword: (passwordData) => api.post("auth/change-password/", passwordData),
+};
 
-//         if (error.response?.status === 401 && !originalRequest._retry) {
-//             originalRequest._retry = true;
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const refreshResponse = await authAPI.refreshToken();
+                if (refreshResponse.data?.refreshed) {
+                    return api(originalRequest);
+                }
+            } catch (refreshError) {
+                console.error("Refresh token failed:", refreshError);
+                if (dispatch) {
+                    dispatch({ type: "user/logoutReducer" });
+                }
+                return Promise.reject(refreshError);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 
-//             try {
-//                 const refresh_response = await authAPI.refreshToken();
-
-//                 if (refresh_response.data?.refreshed) {
-//                     return api(originalRequest);
-//                 }
-//             } catch (refreshError) {
-//                 console.error("Refresh token failed:", refreshError);
-
-//                 if (dispatch) {
-//                     dispatch({ type: "user/logoutReducer" });
-//                 }
-
-//                 return Promise.reject(refreshError);
-//             }
-//         }
-
-//         return Promise.reject(error);
-//     }
-// );
-
-export { authAPI };
+export { authAPI, userAPI };
 export default api;
