@@ -13,11 +13,11 @@ class DepartmentView(APIView):
     def get(self, request, id=None):
         try:
             if id:
-                department = get_object_or_404(Department, id=id)
+                department = get_object_or_404(Department, id=id, created_by=request.user)
                 serializer = DepartmentSerializer(department)
                 return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
             else:
-                queryset = Department.objects.all()
+                queryset = Department.objects.filter(created_by=request.user)
                 try:
                     filterset = DepartmentFilter(request.query_params, queryset=queryset)
                     if filterset.is_valid():
