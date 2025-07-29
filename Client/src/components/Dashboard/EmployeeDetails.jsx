@@ -41,6 +41,12 @@ const EmployeeDetails = () => {
     }, [selectedDepartment]);
 
     useEffect(() => {
+        if (!isCreateFormModalOpen) {
+            fetchFormStructure();
+        }
+    }, [isCreateFormModalOpen]);
+
+    useEffect(() => {
         const fetchDepartments = async () => {
             try {
                 const response = await api.get("departments/");
