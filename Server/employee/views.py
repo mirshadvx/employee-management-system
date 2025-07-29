@@ -5,8 +5,9 @@ from .serializers import (DepartmentSerializer, DynamicFieldSerializer, Departme
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .filters import DepartmentFilter
+from .filters import DepartmentFilter,EmployeeFilter
 from django.shortcuts import get_object_or_404
+from .pagination import defaultPagination
 
 class DepartmentView(APIView):
 
@@ -115,21 +116,6 @@ class EmployeeCreateView(APIView):
                     'department': employee.department.id,
                     'created_at': employee.created_at }}, status=status.HTTP_201_CREATED)
         return Response({ 'success': False, 'errors': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
-        
-class EmployeeListView(APIView):
-    def get(self, request, id):
-        if not id:
-            return Response({ 'success': False,
-                'error': 'Department ID is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            department = get_object_or_404(Department, id=id)
-            employees = Employee.objects.filter(department=department)
-            serializer = EmployeeSerializer(employees, many=True)
-            return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
-        except ValueError:
-            return Response({ 'success': False,
-                'error': 'Invalid department ID' }, status=status.HTTP_400_BAD_REQUEST)
             
 class EmployeeDetailView(APIView):
     def get(self, request, employee_id):
@@ -137,9 +123,37 @@ class EmployeeDetailView(APIView):
         serializer = EmployeeSerializer(employee)
         return Response({ 'success': True,
             'data': serializer.data }, status=status.HTTP_200_OK)
+        
+class EmployeeListView(APIView):
+    def get(self, request, id):
+        department = get_object_or_404(Department, id=id)
+        queryset = Employee.objects.filter(department=department).order_by('id')
 
-    def put(self, request, employee_id):
-        employee = get_object_or_404(Employee, id=employee_id)
+        filterset = EmployeeFilter(
+            data=request.GET,
+            queryset=queryset,
+            request=request
+        )
+        filterset.request.parser_context = {'kwargs': {'id': id}}
+
+        if not filterset.is_valid():
+            return Response({
+                'success': False,
+                'message': 'Invalid filter parameters',
+                'error': filterset.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        filtered_queryset = filterset.qs
+
+        paginator = defaultPagination()
+        paginated_data = paginator.paginate_queryset(filtered_queryset, request)
+        serializer = EmployeeSerializer(paginated_data, many=True)
+
+        return paginator.get_paginated_response({ 'success': True,
+            'data': serializer.data })
+            
+    def put(self, request, id):
+        employee = get_object_or_404(Employee, id=id)
         serializer = EmployeeCreateSerializer(employee, data=request.data)
         if serializer.is_valid():
             employee = serializer.save()
@@ -150,10 +164,10 @@ class EmployeeDetailView(APIView):
                     'department': employee.department.id,
                     'created_at': employee.created_at}}, status=status.HTTP_200_OK)
         return Response({'success': False,
-            'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         
-    def delete(self, request, employee_id):
-        employee = get_object_or_404(Employee, id=employee_id)
+    def delete(self, request, id):
+        employee = get_object_or_404(Employee, id=id)
         try:
             employee.delete()
             return Response({'success': True,
@@ -189,7 +203,7 @@ class DynamicFieldUpdate(APIView):
                 if serializer.is_valid():
                     serializer.save()
                 else:
-                    return Response({"success": False, "message": "Form update failed", "errors": serializer.errors},
+                    return Response({"success": False, "message": "Form update failed", "error": serializer.errors},
                         status=status.HTTP_400_BAD_REQUEST)
 
             return Response( {"success": True, "message": "Form updated successfully"},
