@@ -6,5 +6,7 @@ urlpatterns = [
     path('token/refresh/', CustomTokenRefreshToken.as_view(), name='token_refresh'),
     path('logout/', logout, name='logout'),
     path('authenticated/', is_authenticated, name='authenticated'),
-    path('register/', Register.as_view(), name='register')
+    path('register/', Register.as_view(), name='register'),
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 ]
