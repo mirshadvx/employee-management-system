@@ -23,7 +23,6 @@ class DynamicField(models.Model):
         ('boolean', 'Boolean'),
         ('select', 'Dropdown'),
         ('textarea', 'Multiline'),
-        ('file', 'File Upload'),
     ]
 
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='fields')
