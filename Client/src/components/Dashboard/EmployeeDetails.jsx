@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import CreateForm from "./modals/CreateForm";
 import AddEmployee from "./modals/AddEmployee";
 import EditForm from "./modals/EditForm";
@@ -18,6 +18,14 @@ const EmployeeDetails = () => {
     const [employees, setEmployees] = useState([]);
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [isEditFormModalOpen, setIsEditFormModalOpen] = useState(false);
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const [nextPage, setNextPage] = useState(null);
+    const [previousPage, setPreviousPage] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const { showError, showSuccess } = useToast();
 
     const fetchFormStructure = async () => {
@@ -61,28 +69,79 @@ const EmployeeDetails = () => {
         fetchDepartments();
     }, []);
 
-    useEffect(() => {
-        const fetchEmployees = async () => {
-            if (selectedDepartment) {
-                try {
-                    const response = await api.get(`employees/${selectedDepartment}/`);
-                    if (response.data.success) {
-                        setEmployees(response.data.data);
-                    } else {
-                        setEmployees([]);
-                        showError("Failed to load employees.");
-                    }
-                } catch (error) {
-                    console.error("Error fetching employees:", error);
+    const fetchEmployees = async (page = 1, search = "") => {
+        if (selectedDepartment) {
+            setIsLoading(true);
+            try {
+                let url = `employees/${selectedDepartment}/?page=${page}`;
+                if (search.trim()) {
+                    url += `&search=${encodeURIComponent(search.trim())}`;
+                }
+
+                const response = await api.get(url);
+
+                if (response.data.results?.success) {
+                    setEmployees(response.data.results.data);
+                    setTotalCount(response.data.count);
+                    setNextPage(response.data.next);
+                    setPreviousPage(response.data.previous);
+                    setCurrentPage(page);
+                } else {
                     setEmployees([]);
+                    setTotalCount(0);
+                    setNextPage(null);
+                    setPreviousPage(null);
                     showError("Failed to load employees.");
                 }
-            } else {
+            } catch (error) {
+                console.error("Error fetching employees:", error);
                 setEmployees([]);
+                setTotalCount(0);
+                setNextPage(null);
+                setPreviousPage(null);
+                showError("Failed to load employees.");
+            } finally {
+                setIsLoading(false);
             }
-        };
-        fetchEmployees();
+        } else {
+            setEmployees([]);
+            setTotalCount(0);
+            setNextPage(null);
+            setPreviousPage(null);
+            setCurrentPage(1);
+        }
+    };
+
+    useEffect(() => {
+        setCurrentPage(1);
+        fetchEmployees(1, searchTerm);
     }, [selectedDepartment]);
+
+    // Debounced search effect
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setCurrentPage(1);
+            fetchEmployees(1, searchTerm);
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, selectedDepartment]);
+
+    const handlePageChange = (page) => {
+        fetchEmployees(page, searchTerm);
+    };
+
+    const handlePreviousPage = () => {
+        if (previousPage && currentPage > 1) {
+            handlePageChange(currentPage - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (nextPage) {
+            handlePageChange(currentPage + 1);
+        }
+    };
 
     const handleAddEmployeeClick = () => {
         if (!selectedDepartment) {
@@ -105,25 +164,25 @@ const EmployeeDetails = () => {
         );
         setNewEmployee(prefilledData);
         setEditingEmployee(employee);
+        SetCreateEmployeeFormModalOpen(true);
         setIsAddEmployeeModalOpen(true);
     };
 
     const handleDeleteEmployeeClick = async (employee) => {
-        if (
-            !window.confirm(
-                `Are you sure you want to delete ${employee.field_data["Full Name"]?.value || "this employee"}?`
-            )
-        ) {
+        const employeeName =
+            Object.values(employee.field_data).find((field) => field.field_type === "text" || field.field_type === "email")
+                ?.value || "this employee";
+
+        if (!window.confirm(`Are you sure you want to delete ${employeeName}?`)) {
             return;
         }
+
         try {
             const response = await api.delete(`employees/detail/${employee.id}/`);
             if (response.data.success) {
                 showSuccess("Employee deleted successfully.");
-                const employeesResponse = await api.get(`employees/${selectedDepartment}/`);
-                if (employeesResponse.data.success) {
-                    setEmployees(employeesResponse.data.data);
-                }
+                // Refresh current page
+                fetchEmployees(currentPage, searchTerm);
             } else {
                 showError("Failed to delete employee.");
             }
@@ -158,9 +217,10 @@ const EmployeeDetails = () => {
                     value: newEmployee[label],
                 };
             });
+
             let response;
             if (editingEmployee) {
-                response = await api.put(`employees/detail/${editingEmployee.id}/`, {
+                response = await api.put(`employees/${editingEmployee.id}/`, {
                     department: parseInt(selectedDepartment),
                     field_data: fieldData,
                 });
@@ -172,13 +232,14 @@ const EmployeeDetails = () => {
                 });
                 showSuccess("Employee added successfully.");
             }
+
             setIsAddEmployeeModalOpen(false);
+            SetCreateEmployeeFormModalOpen(false);
             setNewEmployee({});
             setEditingEmployee(null);
-            const employeesResponse = await api.get(`employees/${selectedDepartment}/`);
-            if (employeesResponse.data.success) {
-                setEmployees(employeesResponse.data.data);
-            }
+
+            // Refresh current page
+            fetchEmployees(currentPage, searchTerm);
         } catch (error) {
             showError(`Failed to ${editingEmployee ? "update" : "add"} employee. Please check the form data.`);
         }
@@ -187,11 +248,6 @@ const EmployeeDetails = () => {
     const handleEditFormSuccess = () => {
         fetchFormStructure();
     };
-
-    const filteredEmployees = employees.filter((employee) => {
-        const fullName = employee.field_data["Full Name"]?.value || "";
-        return fullName.toLowerCase().includes(searchTerm.toLowerCase());
-    });
 
     const columns = formStructure?.fields
         ? formStructure.fields
@@ -202,6 +258,8 @@ const EmployeeDetails = () => {
                   field_type: field.field_type,
               }))
         : [];
+
+    const totalPages = Math.ceil(totalCount / 10); // Assuming 10 items per page
 
     return (
         <>
@@ -225,7 +283,7 @@ const EmployeeDetails = () => {
                     <div className="flex items-center gap-2">
                         <input
                             type="text"
-                            placeholder="Search employees by name..."
+                            placeholder="Search employees ..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="px-3 py-2 border border-[#8FA68E]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8FA68E] bg-white min-w-[250px]"
@@ -257,6 +315,16 @@ const EmployeeDetails = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Results count */}
+            {selectedDepartment && (
+                <div className="mb-4 text-sm text-[#3C4142]">
+                    {isLoading
+                        ? "Loading..."
+                        : `Showing ${employees.length} of ${totalCount} employee${totalCount !== 1 ? "s" : ""}`}
+                </div>
+            )}
+
             <div className="bg-[#8FA68E]/5 rounded-lg p-1">
                 <div className="bg-white rounded-lg overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
@@ -268,27 +336,35 @@ const EmployeeDetails = () => {
                                             {column.label}
                                         </th>
                                     ))}
-                                    {columns.length === 0 && (
-                                        <th className="px-6 py-3 text-left text-[#3C4142] font-semibold"></th>
+                                    {columns.length === 0 && selectedDepartment && (
+                                        <th className="px-6 py-3 text-left text-[#3C4142] font-semibold">Employee Data</th>
                                     )}
-                                    <th className="px-6 py-3 text-left text-[#3C4142] font-semibold"></th>
+                                    {selectedDepartment && (
+                                        <th className="px-6 py-3 text-left text-[#3C4142] font-semibold">Actions</th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredEmployees.length > 0 ? (
-                                    filteredEmployees.map((employee) => (
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={columns.length + 1} className="px-6 py-8 text-center text-[#8FA68E]">
+                                            Loading employees...
+                                        </td>
+                                    </tr>
+                                ) : employees.length > 0 ? (
+                                    employees.map((employee) => (
                                         <tr
                                             key={employee.id}
                                             className="border-b border-[#8FA68E]/10 hover:bg-[#E8DDD4]/20 transition-colors"
                                         >
                                             {columns.map((column) => (
                                                 <td key={column.id} className="px-6 py-4 text-[#3C4142] font-medium">
-                                                    {employee.field_data[column.label]?.value || "-"}
+                                                    {employee.field_data[column.label]?.value?.toString() || "-"}
                                                 </td>
                                             ))}
                                             {columns.length === 0 && (
                                                 <td className="px-6 py-4 text-[#3C4142] font-medium">
-                                                    {employee.field_data["Full Name"]?.value || "Unknown"}
+                                                    {Object.values(employee.field_data)[0]?.value?.toString() || "No data"}
                                                 </td>
                                             )}
                                             <td className="px-6 py-4 flex gap-2">
@@ -309,10 +385,18 @@ const EmployeeDetails = () => {
                                             </td>
                                         </tr>
                                     ))
+                                ) : selectedDepartment ? (
+                                    <tr>
+                                        <td colSpan={columns.length + 1} className="px-6 py-8 text-center text-[#8FA68E]">
+                                            {searchTerm
+                                                ? "No employees found matching your search criteria."
+                                                : "No employees found in this department."}
+                                        </td>
+                                    </tr>
                                 ) : (
                                     <tr>
                                         <td colSpan={columns.length + 1} className="px-6 py-8 text-center text-[#8FA68E]">
-                                            No employees found matching your criteria.
+                                            Please select a department to view employees.
                                         </td>
                                     </tr>
                                 )}
@@ -321,11 +405,53 @@ const EmployeeDetails = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Pagination */}
+            {selectedDepartment && totalCount > 0 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                    <div className="text-sm text-[#3C4142]">
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handlePreviousPage}
+                            disabled={!previousPage || isLoading}
+                            className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${
+                                previousPage && !isLoading
+                                    ? "bg-[#8FA68E] text-white hover:bg-[#3C4142]"
+                                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            }`}
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                            Previous
+                        </button>
+
+                        <span className="px-4 py-2 text-[#3C4142]">
+                            {currentPage} / {totalPages}
+                        </span>
+
+                        <button
+                            onClick={handleNextPage}
+                            disabled={!nextPage || isLoading}
+                            className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${
+                                nextPage && !isLoading
+                                    ? "bg-[#8FA68E] text-white hover:bg-[#3C4142]"
+                                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            }`}
+                        >
+                            Next
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {isCreateEmployeeFormModalOpen && (
                 <AddEmployee
                     isOpen={isAddEmployeeModalOpen}
                     onClose={() => {
                         setIsAddEmployeeModalOpen(false);
+                        SetCreateEmployeeFormModalOpen(false);
                         setEditingEmployee(null);
                         setNewEmployee({});
                     }}
