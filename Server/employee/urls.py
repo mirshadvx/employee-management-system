@@ -9,5 +9,6 @@ urlpatterns = [
     path('form-structure/<int:id>/', DepartmentFormStructure.as_view(), name='form-structure'),
     path('employees-create/', EmployeeCreateView.as_view(), name='employee-create'),
     path('employees/<int:id>/', EmployeeListView.as_view(), name='employee-list'),
-    path('employees/detail/<int:employee_id>/', EmployeeDetailView.as_view(), name='employee-detail')
+    path('employees/detail/<int:employee_id>/', EmployeeDetailView.as_view(), name='employee-detail'),
+    path('departments-noform/', DepartmentsNoForm.as_view(), name='no-form-departments'),
 ]

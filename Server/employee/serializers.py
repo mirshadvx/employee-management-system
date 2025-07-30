@@ -136,3 +136,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 'field_type': fd.field.field_type,
                 'field_id': fd.field.id
             } for fd in field_data }
+        
+class DepartmentsNoFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'label']

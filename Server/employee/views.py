@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from .models import Department, Employee, DynamicField
 from .serializers import (DepartmentSerializer, DynamicFieldSerializer, DepartmentFormSerializer,
-                          EmployeeCreateSerializer, EmployeeSerializer)
+                          EmployeeCreateSerializer, EmployeeSerializer, DepartmentsNoFormSerializer)
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -214,3 +214,13 @@ class DynamicFieldUpdate(APIView):
         except Exception as e:
             return Response({"success": False, "message": "Form update failed", "error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR )
+            
+class DepartmentsNoForm(APIView):
+    def get(self, request):
+        try:
+            departments = Department.objects.filter(fields__isnull=True, created_by=request.user).distinct()
+            print(departments)
+            serializer = DepartmentsNoFormSerializer(departments, many=True)
+            return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'success': False, 'message': 'error retrieving departments', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

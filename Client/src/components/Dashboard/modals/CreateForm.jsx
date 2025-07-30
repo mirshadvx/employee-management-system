@@ -35,7 +35,7 @@ const CreateForm = ({ onClose }) => {
         const fetchDepartments = async () => {
             setLoading(true);
             try {
-                const response = await api.get("departments/");
+                const response = await api.get("departments-noform/");
                 if (response.data.success) {
                     setDepartments(response.data.data);
                 } else {
