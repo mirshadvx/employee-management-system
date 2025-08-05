@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'authCustom',
     'employee',
     'django_filters',
+    'home',
    
 ]
 
@@ -63,6 +64,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
+        'APP_DIRS': True,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -114,8 +116,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
-
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SIMPLE_JWT = {
