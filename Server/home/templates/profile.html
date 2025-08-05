@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}EMS - Profile{% endblock %}
+{% block content %}
+    {% include 'navbar.html' %}
+    <section class="py-20 px-4">
+        <div class="container mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl font-bold text-[#3C4142] mb-6">Profile</h1>
+            <p class="text-xl text-[#6B7D6A] mb-8 max-w-2xl mx-auto">
+                View and manage your profile information.
+            </p>
+            <div class="text-left max-w-md mx-auto">
+                <p class="text-[#3C4142]"><strong>Username:</strong> {{ user.username }}</p>
+                <p class="text-[#3C4142]"><strong>Email:</strong> {{ user.email|default:"Not set" }}</p>
+            </div>
+        </div>
+    </section>
+{% endblock %}
