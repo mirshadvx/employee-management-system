@@ -1,0 +1,146 @@
+{% extends "dashboard.html" %}
+{% block dashboard_content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-semibold mb-6 text-[#3C4142]">Edit Custom Employee Form</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-[#3C4142]">Employee Fields</h3>
+                <button type="button"
+                        onclick="addFieldRow()"
+                        class="flex items-center gap-2 px-3 py-2 bg-[#8FA68E] text-white rounded-md">
+                    Add Field
+                </button>
+            </div>
+            <div id="fields-container" class="space-y-4">
+                {% for field in dynamic_fields %}
+                <div class="field-row border border-gray-300 rounded-md p-4 bg-gray-50 relative">
+                    <input type="hidden" name="field_id[]" value="{{ field.id }}" />
+                    <div class="flex flex-col md:flex-row md:items-center md:gap-4">
+                        <div class="flex-none mr-2">
+                            <i class="fas fa-grip-vertical drag-handle cursor-move text-gray-500"></i>
+                        </div>
+                        <div class="flex-1 mb-3 md:mb-0">
+                            <label class="block text-[#3C4142] font-semibold mb-1">Field Label</label>
+                            <input type="text" name="field_label[]" value="{{ field.label }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" placeholder="Field Label" required />
+                        </div>
+                        <div class="flex-1 mb-3 md:mb-0">
+                            <label class="block text-[#3C4142] font-semibold mb-1">Field Type</label>
+                            <select name="field_type[]" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" required>
+                                <option value="text" {% if field.field_type == 'text' %}selected{% endif %}>Text</option>
+                                <option value="number" {% if field.field_type == 'number' %}selected{% endif %}>Number</option>
+                                <option value="email" {% if field.field_type == 'email' %}selected{% endif %}>Email</option>
+                                <option value="date" {% if field.field_type == 'date' %}selected{% endif %}>Date</option>
+                                <option value="boolean" {% if field.field_type == 'boolean' %}selected{% endif %}>Checkbox</option>
+                                <option value="select" {% if field.field_type == 'select' %}selected{% endif %}>Dropdown</option>
+                                <option value="textarea" {% if field.field_type == 'textarea' %}selected{% endif %}>Multiline</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="field_order[]" value="{{ field.order }}" />
+                        <div class="flex-none flex items-end mb-3 md:mb-0 pl-2">
+                            <button type="button" class="text-red-500 hover:text-red-700" onclick="removeField(this)">✕</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-4 border-t">
+            <a href="{% url 'employee_details' %}" class="px-4 py-2 text-[#3C4142] rounded-md hover:bg-[#E8DDD4]/50">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-[#8FA68E] text-white rounded-md hover:bg-[#3C4142]">Update Form</button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+    let fieldIndex = {{ dynamic_fields|length }};
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var container = document.getElementById('fields-container');
+        new Sortable(container, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            handle: '.drag-handle',
+            onEnd: function (evt) {
+                updateFieldOrders();
+            }
+        });
+    });
+
+    function addFieldRow(label = "", type = "") {
+        const container = document.getElementById("fields-container");
+        const row = document.createElement("div");
+        row.className = "field-row border border-gray-300 rounded-md p-4 bg-gray-50 relative";
+        row.innerHTML = `
+            <input type="hidden" name="field_id[]" value="" />
+            <div class="flex flex-col md:flex-row md:items-center md:gap-4">
+                <div class="flex-none mr-2">
+                    <i class="fas fa-grip-vertical drag-handle cursor-move text-gray-500"></i>
+                </div>
+                <div class="flex-1 mb-3 md:mb-0">
+                    <label class="block text-[#3C4142] font-semibold mb-1">Field Label</label>
+                    <input type="text" name="field_label[]" value="${label}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" placeholder="Field Label" required />
+                </div>
+                <div class="flex-1 mb-3 md:mb-0">
+                    <label class="block text-[#3C4142] font-semibold mb-1">Field Type</label>
+                    <select name="field_type[]" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" required>
+                        <option value="text" ${type === "text" ? "selected" : ""}>Text</option>
+                        <option value="number" ${type === "number" ? "selected" : ""}>Number</option>
+                        <option value="email" ${type === "email" ? "selected" : ""}>Email</option>
+                        <option value="date" ${type === "date" ? "selected" : ""}>Date</option>
+                        <option value="boolean" ${type === "boolean" ? "selected" : ""}>Checkbox</option>
+                        <option value="select" ${type === "select" ? "selected" : ""}>Dropdown</option>
+                        <option value="textarea" ${type === "textarea" ? "selected" : ""}>Multiline</option>
+                    </select>
+                </div>
+                <input type="hidden" name="field_order[]" value="${fieldIndex}" />
+                <div class="flex-none flex items-end mb-3 md:mb-0 pl-2">
+                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removeField(this)">✕</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+        fieldIndex++;
+    }
+
+    function removeField(button) {
+        const row = button.closest('.field-row');
+        const fieldIdInput = row.querySelector('input[name="field_id[]"]');
+        if (fieldIdInput && fieldIdInput.value) {
+            const deletedFieldIdsContainer = document.createElement("input");
+            deletedFieldIdsContainer.type = "hidden";
+            deletedFieldIdsContainer.name = "deleted_field_id[]";
+            deletedFieldIdsContainer.value = fieldIdInput.value;
+            document.querySelector('form').appendChild(deletedFieldIdsContainer);
+        }
+        row.remove();
+    }
+
+    function updateFieldOrders() {
+        const rows = document.querySelectorAll('.field-row');
+        rows.forEach((row, index) => {
+            const orderInput = row.querySelector('input[name="field_order[]"]');
+            if (orderInput) {
+                orderInput.value = index;
+            }
+        });
+    }
+</script>
+
+<style>
+    .sortable-ghost {
+        opacity: 0.5;
+        background: #c8ebfb;
+    }
+    .field-row {
+        cursor: move;
+    }
+    .drag-handle {
+        cursor: move;
+    }
+</style>
+
+{% endblock %}

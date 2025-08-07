@@ -1,0 +1,110 @@
+{% extends "dashboard.html" %}
+{% load dashboard_extras %}
+
+{% block dashboard_content %}
+<div class="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6">
+    <form method="get" class="flex flex-col md:flex-row gap-4 items-center w-full">
+        <div class="flex items-center gap-2">
+            <label class="text-[#3C4142] font-semibold">Department:</label>
+            <select name="department" onchange="this.form.submit()" class="px-3 py-2 border border-[#8FA68E]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8FA68E] bg-white min-w-[180px]">
+                <option value="">Select Department</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}"
+                        {% if dept.id|stringformat:"s" == department_id|stringformat:"s" %}selected{% endif %}>
+                        {{ dept.name }} - {{ dept.label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex items-center gap-2">
+            <input type="text"
+                name="q"
+                placeholder="Search employees..."
+                value="{{ search_query|default_if_none:'' }}"
+                class="px-3 py-2 border border-[#8FA68E]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8FA68E] bg-white min-w-[250px]"
+            />
+        </div>
+        <button type="submit" class="hidden md:block px-4 py-2 bg-[#8FA68E] text-white rounded-md ml-2">Search</button>
+    </form>
+    <div class="flex gap-2">
+        <a href="{% url 'form_create' %}" class="whitespace-nowrap inline-flex items-center px-5 py-2 bg-[#8FA68E] text-white rounded-full hover:bg-[#3C4142] transition-all duration-300 shadow-md hover:shadow-lg font-semibold">
+            Create Form
+        </a>
+        {% if department_id %}
+            <a href="{% url 'form_edit' department_id %}" class="whitespace-nowrap inline-flex items-center px-5 py-2 bg-[#8FA68E] text-white rounded-full hover:bg-[#3C4142] transition-all duration-300 shadow-md hover:shadow-lg font-semibold">
+                Edit Form
+            </a>
+        {% endif %}
+        <a href="{% url 'employee_create' %}" class="whitespace-nowrap inline-flex items-center px-5 py-2 bg-[#8FA68E] text-white rounded-full hover:bg-[#3C4142] transition-all duration-300 shadow-md hover:shadow-lg font-semibold">
+            Add Employee
+        </a>
+    </div>
+
+</div>
+<div class="mb-4 text-sm text-[#3C4142]">
+    Showing {{ employees|length }} of {{ total_count }} employees
+</div>
+<div class="bg-[#8FA68E]/5 rounded-lg p-1">
+    <div class="bg-white rounded-lg overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-[#E8DDD4]">
+                    <tr>
+                        {% for col in columns %}
+                        <th class="px-6 py-3 text-left text-[#3C4142] font-semibold">{{ col.label }}</th>
+                        {% endfor %}
+                        <th class="px-6 py-3 text-left text-[#3C4142] font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr class="border-b border-[#8FA68E]/10 hover:bg-[#E8DDD4]/20 transition-colors">
+                        {% for col in columns %}
+                        <td class="px-6 py-4 text-[#3C4142] font-medium">
+                            {{ employee.field_data|get_item:col.key }}
+                        </td>
+                        {% endfor %}
+                        <td class="px-6 py-4 flex gap-2">
+                            <a href="{% url 'employee_edit' employee.id %}" class="text-[#8FA68E] hover:text-[#3C4142]" title="Edit">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <a href="{% url 'employee_delete' employee.id %}" class="text-red-500 hover:text-red-700" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{{ columns|length|add:1 }}" class="px-6 py-8 text-center text-[#8FA68E]">
+                            No employees found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+    <div class="text-sm text-[#3C4142]">Page {{ current_page }} of {{ total_pages }}</div>
+    <div class="flex items-center gap-2">
+        {% if employees.has_previous %}
+            <a href="?page=1{% if department_id %}&department={{ department_id }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="flex items-center gap-1 px-3 py-2 rounded-md bg-[#8FA68E] text-white hover:bg-[#3C4142]">
+                <span>First</span>
+            </a>
+            <a href="?page={{ employees.previous_page_number }}{% if department_id %}&department={{ department_id }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="flex items-center gap-1 px-3 py-2 rounded-md bg-[#8FA68E] text-white hover:bg-[#3C4142]">
+                <span>Previous</span>
+            </a>
+        {% endif %}
+        <span class="px-4 py-2 text-[#3C4142]">{{ current_page }} / {{ total_pages }}</span>
+        {% if employees.has_next %}
+            <a href="?page={{ employees.next_page_number }}{% if department_id %}&department={{ department_id }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="flex items-center gap-1 px-3 py-2 rounded-md bg-[#8FA68E] text-white hover:bg-[#3C4142]">
+                <span>Next</span>
+            </a>
+            <a href="?page={{ employees.paginator.num_pages }}{% if department_id %}&department={{ department_id }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="flex items-center gap-1 px-3 py-2 rounded-md bg-[#8FA68E] text-white hover:bg-[#3C4142]">
+                <span>Last</span>
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

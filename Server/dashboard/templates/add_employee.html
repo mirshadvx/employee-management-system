@@ -1,0 +1,61 @@
+{% extends "dashboard.html" %}
+{% block dashboard_content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-semibold text-[#3C4142] mb-6">{{ is_editing|yesno:"Edit Employee,Add New Employee" }}</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-[#3C4142] font-medium mb-1">Select Department</label>
+            <select name="department" required onchange="window.location.href='?department=' + this.value" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md">
+                <option value="">-- Select Department --</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}" {% if selected_department and dept.id == selected_department.id %}selected{% endif %}>
+                    {{ dept.name }} - {{ dept.label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if selected_department %}
+            <div class="space-y-4">
+                {% for field in dynamic_fields %}
+                    <div>
+                        <label class="block text-[#3C4142] font-medium mb-1">{{ field.label }}</label>
+                        {% if field.field_type == 'text' %}
+                            <input type="text" name="field_{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" />
+                        {% elif field.field_type == 'number' %}
+                            <input type="number" name="field_{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" />
+                        {% elif field.field_type == 'date' %}
+                            <input type="date" name="field_{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" />
+                        {% elif field.field_type == 'email' %}
+                            <input type="email" name="field_{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" />
+                        {% elif field.field_type == 'password' %}
+                            <input type="password" name="field_{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" />
+                        {% elif field.field_type == 'boolean' %}
+                            <input type="checkbox" name="field_{{ field.id }}" class="rounded" />
+                        {% elif field.field_type == 'select' %}
+                            <select name="field_{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md">
+                                <option value="">-- Select --</option>
+                                {% for option in field.field_options %}
+                                    <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        {% elif field.field_type == 'textarea' %}
+                            <textarea name="field_{{ field.id }}" rows="4" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md"></textarea>
+                        {% else %}
+                            <input type="text" name="field_{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" />
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-600 italic">Select a department to load its custom form fields.</p>
+        {% endif %}
+        <div class="flex justify-end gap-2 pt-4">
+            <a href="{% url 'employee_details' %}" class="px-4 py-2 text-[#3C4142] rounded-md hover:bg-[#E8DDD4]/50">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-[#8FA68E] text-white rounded-md hover:bg-[#3C4142]">Add Employee</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

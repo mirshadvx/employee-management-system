@@ -1,0 +1,15 @@
+{% extends "dashboard.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold text-[#3C4142] mb-4">Delete Department</h2>
+    <p class="mb-4">Are you sure you want to delete the department "{{ department.name }}"?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="flex justify-end gap-3 mt-6">
+            <a href="{% url 'department_overview' %}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

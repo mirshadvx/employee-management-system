@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-[#E8DDD4] to-white">
+    {% include "navbar.html" %}
+    <div class="container mx-auto px-4 py-5">
+        <div class="bg-white rounded-lg shadow-md mb-8 overflow-hidden">
+            <div class="flex border-b border-[#8FA68E]/20">
+                <a href="{% url 'employee_details' %}" class="flex-1 px-6 py-4 text-center font-semibold transition-colors {% if active_tab == 'employees' %}bg-[#8FA68E] text-white{% else %}text-[#3C4142] hover:bg-[#E8DDD4]/50{% endif %}">
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="inline-block"><svg width="20" height="20"></svg></span>
+                        Employee Details
+                    </div>
+                </a>
+                <a href="{% url 'department_overview' %}" class="flex-1 px-6 py-4 text-center font-semibold transition-colors {% if active_tab == 'departments' %}bg-[#8FA68E] text-white{% else %}text-[#3C4142] hover:bg-[#E8DDD4]/50{% endif %}">
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="inline-block"><svg width="20" height="20"></svg></span>
+                        Department Overview
+                    </div>
+                </a>
+            </div>
+            <div class="p-6">
+                {% block dashboard_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

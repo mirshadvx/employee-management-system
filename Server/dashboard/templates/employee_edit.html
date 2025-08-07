@@ -1,0 +1,39 @@
+{% extends "dashboard.html" %}
+{% load dashboard_extras %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-semibold mb-6 text-[#3C4142]">Edit Employee Data</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="space-y-4">
+            {% for field in dynamic_fields %}
+            <div class="mb-4">
+                <label class="block text-[#3C4142] font-semibold mb-1">{{ field.label }}</label>
+                {% if field.field_type == 'textarea' %}
+                <textarea name="{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" rows="3">{{ field_data_dict|get_item:field.id|default:"" }}</textarea>
+                {% elif field.field_type == 'select' %}
+                <select name="{{ field.id }}" class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md">
+                    {% for option in field.field_options %}
+                    <option value="{{ option }}" {% if field_data_dict|get_item:field.id == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+                {% elif field.field_type == 'boolean' %}
+                <input type="checkbox" name="{{ field.id }}"
+                       {% if field_data_dict|get_item:field.id %}checked{% endif %}
+                       class="w-4 h-4 text-[#8FA68E] rounded focus:ring-[#8FA68E]/50" />
+                {% else %}
+                <input type="text" name="{{ field.id }}"
+                       value="{{ field_data_dict|get_item:field.id|default:'' }}"
+                       class="w-full px-3 py-2 border border-[#8FA68E]/30 rounded-md" />
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="flex justify-end gap-2 pt-6 border-t mt-6">
+            <a href="{% url 'employee_details' %}" class="px-4 py-2 text-[#3C4142] rounded-md hover:bg-[#E8DDD4]/50">Cancel</a>
+            <button type="submit" class="px-6 py-2 bg-[#8FA68E] text-white rounded-md hover:bg-[#3C4142]">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

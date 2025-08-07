@@ -1,0 +1,24 @@
+{% extends "dashboard.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <form method="POST">
+        {% csrf_token %}
+        <h2 class="text-xl font-bold text-[#3C4142] mb-4">{{ editing|yesno:"Edit Department,Create New Department" }}</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Department Name</label>
+                <input type="text" name="name" value="{{ d.name|default_if_none:'' }}" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-[#8FA68E] focus:border-[#8FA68E]" placeholder="e.g., Engineering" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Department Label</label>
+                <input type="text" name="label" value="{{ d.label|default_if_none:'' }}" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-[#8FA68E] focus:border-[#8FA68E]" placeholder="e.g., Tech Team" required>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <a href="{% url 'department_overview' %}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-[#8FA68E] text-white rounded hover:bg-[#7A997D]">{{ editing|yesno:"Update,Create" }}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
