@@ -6,9 +6,7 @@
             class="absolute top-4 right-4 text-[#6B7D6A] hover:text-[#3C4142] transition-colors z-10"
             aria-label="Close"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <i class="fas fa-xmark text-xl"></i>
         </button>
         <div class="p-8">
             <div class="mb-5">
@@ -52,20 +50,7 @@
                             onclick="togglePassword('password', 'toggle-password')"
                             class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6B7D6A] hover:text-[#3C4142] transition-colors"
                         >
-                            <svg id="toggle-password" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                ></path>
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                ></path>
-                            </svg>
+                            <i id="toggle-password" class="fas fa-eye"></i>
                         </button>
                     </div>
                     <p id="password-error" class="text-red-500 text-sm mt-1 hidden"></p>
@@ -85,26 +70,7 @@
                             onclick="togglePassword('password2', 'toggle-password2')"
                             class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6B7D6A] hover:text-[#3C4142] transition-colors"
                         >
-                            <svg
-                                id="toggle-password2"
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                ></path>
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                ></path>
-                            </svg>
+                            <i id="toggle-password2" class="fas fa-eye"></i>
                         </button>
                     </div>
                     <p id="password2-error" class="text-red-500 text-sm mt-1 hidden"></p>
@@ -135,13 +101,15 @@
 <script>
     function togglePassword(inputId, toggleId) {
         const input = document.getElementById(inputId);
-        const toggle = document.getElementById(toggleId);
+        const icon = document.getElementById(toggleId);
         if (input.type === 'password') {
             input.type = 'text';
-            toggle.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
         } else {
             input.type = 'password';
-            toggle.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
         }
     }
 
@@ -155,7 +123,8 @@
             const password2Error = $('#password2-error');
 
             button.prop('disabled', true);
-            button.html('<div class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" /><path fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z" /></svg><span>Creating Account...</span></div>');
+            button.html('<div class="flex items-center justify-center gap-2"><i class="fas fa-spinner fa-spin"></i><span>Creating Account...</span></div>');
+
             usernameError.addClass('hidden');
             emailError.addClass('hidden');
             passwordError.addClass('hidden');

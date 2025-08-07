@@ -10,12 +10,6 @@
             <a href="/dashboard" class="text-[#5e4a3a] hover:text-[#9aac7f] font-semibold transition-all duration-300"
                 >Dashboard</a
             >
-            <button
-                onclick="handleLogout()"
-                class="py-2 px-4 bg-[#9aac7f] text-white rounded-lg hover:bg-[#5e4a3a] transition-all duration-300 shadow-md hover:shadow-lg font-semibold"
-            >
-                Logout
-            </button>
             {% else %}
             <a
                 href="{% url 'signin' %}"
@@ -29,24 +23,19 @@
             >
             {% endif %}
         </div>
+
+        {% if user.is_authenticated %}
+        <button
+            onclick="handleLogout()"
+            class="hidden md:block py-2 px-4 bg-[#9aac7f] text-white rounded-lg hover:bg-[#5e4a3a] transition-all duration-300 shadow-md hover:shadow-lg font-semibold"
+        >
+            Logout
+        </button>
+        {% endif %}
+
         <div x-data="{ open: false }" class="md:hidden">
-            <button @click="open = !open" class="text-[#5e4a3a] focus:outline-none">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        x-show="!open"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 6h16M4 12h16m-7 6h7"
-                    ></path>
-                    <path
-                        x-show="open"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                </svg>
+            <button @click="open = !open" class="text-[#5e4a3a] focus:outline-none text-2xl">
+                <i :class="open ? 'fas fa-xmark' : 'fas fa-bars'"></i>
             </button>
             <div
                 x-show="open"

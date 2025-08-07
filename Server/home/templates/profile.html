@@ -2,16 +2,62 @@
 {% block title %}EMS - Profile{% endblock %}
 {% block content %}
     {% include 'navbar.html' %}
-    <section class="py-20 px-4">
+    <section class="py-10 px-4">
         <div class="container mx-auto text-center">
-            <h1 class="text-5xl md:text-6xl font-bold text-[#3C4142] mb-6">Profile</h1>
-            <p class="text-xl text-[#6B7D6A] mb-8 max-w-2xl mx-auto">
-                View and manage your profile information.
-            </p>
             <div class="text-left max-w-md mx-auto">
                 <p class="text-[#3C4142]"><strong>Username:</strong> {{ user.username }}</p>
                 <p class="text-[#3C4142]"><strong>Email:</strong> {{ user.email|default:"Not set" }}</p>
             </div>
+            <div class="mt-10 max-w-md mx-auto">
+                <h2 class="text-2xl font-bold text-[#3C4142] mb-4">Change Password</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4 relative">
+                        <label for="old_password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                        <input type="password" id="old_password" name="old_password" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-[#8FA68E] focus:border-[#8FA68E]" required>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-2 mt-6 cursor-pointer" onclick="togglePasswordVisibility('old_password', 'toggle-old-password')">
+                            <span id="toggle-old-password" class="text-gray-500">Show</span>
+                        </span>
+                    </div>
+                    <div class="mb-4 relative">
+                        <label for="new_password1" class="block text-sm font-medium text-gray-700">New Password</label>
+                        <input type="password" id="new_password1" name="new_password1" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-[#8FA68E] focus:border-[#8FA68E]" required>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-2 mt-6 cursor-pointer" onclick="togglePasswordVisibility('new_password1', 'toggle-new-password1')">
+                            <span id="toggle-new-password1" class="text-gray-500">Show</span>
+                        </span>
+                    </div>
+                    <div class="mb-4 relative">
+                        <label for="new_password2" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                        <input type="password" id="new_password2" name="new_password2" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-[#8FA68E] focus:border-[#8FA68E]" required>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-2 mt-6 cursor-pointer" onclick="togglePasswordVisibility('new_password2', 'toggle-new-password2')">
+                            <span id="toggle-new-password2" class="text-gray-500">Show</span>
+                        </span>
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-[#8FA68E] text-white rounded hover:bg-[#7A997D]">Change Password</button>
+                </form>
+            </div>
         </div>
     </section>
+    {% if messages %}
+        <div class="container mx-auto max-w-md mt-6">
+            {% for message in messages %}
+                <div class="p-4 mb-4 text-sm text-{{ message.tags }} rounded-lg bg-{{ message.tags }}-100" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <script>
+        function togglePasswordVisibility(fieldId, toggleId) {
+            const field = document.getElementById(fieldId);
+            const toggle = document.getElementById(toggleId);
+            if (field.type === 'password') {
+                field.type = 'text';
+                toggle.textContent = 'Hide';
+            } else {
+                field.type = 'password';
+                toggle.textContent = 'Show';
+            }
+        }
+    </script>
 {% endblock %}
