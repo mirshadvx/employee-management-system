@@ -1,11 +1,9 @@
-{% extends 'base.html' %} {% block title %}EMS - Sign Up{% endblock %} {% block content %}
+{% extends 'base.html' %}
+{% block title %}EMS - Sign Up{% endblock %}
+{% block content %}
 <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
     <div class="bg-[#E8DDD4] rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-        <button
-            onclick="window.location.href='{% url 'home' %}'"
-            class="absolute top-4 right-4 text-[#6B7D6A] hover:text-[#3C4142] transition-colors z-10"
-            aria-label="Close"
-        >
+        <button onclick="window.location.href='{% url 'home' %}'" class="absolute top-4 right-4 text-[#6B7D6A] hover:text-[#3C4142] transition-colors z-10" aria-label="Close">
             <i class="fas fa-xmark text-xl"></i>
         </button>
         <div class="p-8">
@@ -15,41 +13,19 @@
             <form id="signup-form" class="space-y-3">
                 <div>
                     <label class="block text-sm font-medium text-[#3C4142] mb-1">Username*</label>
-                    <input
-                        name="username"
-                        type="text"
-                        required
-                        minlength="4"
-                        class="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50"
-                    />
+                    <input name="username" type="text" required minlength="4" class="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50" />
                     <p id="username-error" class="text-red-500 text-sm mt-1 hidden"></p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-[#3C4142] mb-1">Email</label>
-                    <input
-                        name="email"
-                        type="email"
-                        required
-                        class="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50"
-                    />
+                    <input name="email" type="email" class="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50" />
                     <p id="email-error" class="text-red-500 text-sm mt-1 hidden"></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-[#3C4142] mb-1">Password</label>
+                    <label class="block text-sm font-medium text-[#3C4642] mb-1">Password</label>
                     <div class="relative">
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            minlength="8"
-                            class="w-full px-4 py-3 pr-12 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50"
-                        />
-                        <button
-                            type="button"
-                            onclick="togglePassword('password', 'toggle-password')"
-                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6B7D6A] hover:text-[#3C4142] transition-colors"
-                        >
+                        <input id="password" name="password" type="password" required minlength="8" class="w-full px-4 py-3 pr-12 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50" />
+                        <button type="button" onclick="togglePassword('password', 'toggle-password')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6B7D6A] hover:text-[#3C4142] transition-colors">
                             <i id="toggle-password" class="fas fa-eye"></i>
                         </button>
                     </div>
@@ -58,38 +34,21 @@
                 <div>
                     <label class="block text-sm font-medium text-[#3C4142] mb-1">Confirm Password</label>
                     <div class="relative">
-                        <input
-                            id="password2"
-                            name="password2"
-                            type="password"
-                            required
-                            class="w-full px-4 py-3 pr-12 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50"
-                        />
-                        <button
-                            type="button"
-                            onclick="togglePassword('password2', 'toggle-password2')"
-                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6B7D6A] hover:text-[#3C4142] transition-colors"
-                        >
+                        <input id="password2" name="password2" type="password" required class="w-full px-4 py-3 pr-12 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:border-transparent transition-all duration-200 bg-white border-[#8FA68E]/30 hover:border-[#8FA68E]/50" />
+                        <button type="button" onclick="togglePassword('password2', 'toggle-password2')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6B7D6A] hover:text-[#3C4142] transition-colors">
                             <i id="toggle-password2" class="fas fa-eye"></i>
                         </button>
                     </div>
                     <p id="password2-error" class="text-red-500 text-sm mt-1 hidden"></p>
                 </div>
-                <button
-                    type="submit"
-                    id="signup-button"
-                    class="w-full bg-[#3C4142] text-white py-3 rounded-lg font-medium hover:bg-[#8FA68E] focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button type="submit" id="signup-button" class="w-full bg-[#3C4142] text-white py-3 rounded-lg font-medium hover:bg-[#8FA68E] focus:outline-none focus:ring-2 focus:ring-[#8FA68E] focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
                     Sign Up
                 </button>
             </form>
             <div class="mt-6 text-center">
                 <p class="text-[#6B7D6A] text-sm">
                     Already have an account?
-                    <a
-                        href="{% url 'signin' %}"
-                        class="text-[#8FA68E] hover:text-[#3C4142] font-medium hover:underline transition-colors"
-                    >
+                    <a href="{% url 'signin' %}" class="text-[#8FA68E] hover:text-[#3C4142] font-medium hover:underline transition-colors">
                         Sign in
                     </a>
                 </p>
@@ -97,7 +56,8 @@
         </div>
     </div>
 </div>
-{% endblock %} {% block scripts %}
+{% endblock %}
+{% block scripts %}
 <script>
     function togglePassword(inputId, toggleId) {
         const input = document.getElementById(inputId);
@@ -136,36 +96,6 @@
             const password = formData.get('password');
             const password2 = formData.get('password2');
 
-            if (username.length < 4) {
-                usernameError.text('Username must be at least 4 characters').removeClass('hidden');
-                button.prop('disabled', false).html('Sign Up');
-                return;
-            }
-
-            if (email && !/^\S+@\S+$/i.test(email)) {
-                emailError.text('Please enter a valid email').removeClass('hidden');
-                button.prop('disabled', false).html('Sign Up');
-                return;
-            }
-
-            if (password.length < 8) {
-                passwordError.text('Password must be at least 8 characters').removeClass('hidden');
-                button.prop('disabled', false).html('Sign Up');
-                return;
-            }
-
-            if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-                passwordError.text('Password must contain at least one uppercase letter, one lowercase letter, and one number').removeClass('hidden');
-                button.prop('disabled', false).html('Sign Up');
-                return;
-            }
-
-            if (password !== password2) {
-                password2Error.text('Passwords do not match').removeClass('hidden');
-                button.prop('disabled', false).html('Sign Up');
-                return;
-            }
-
             $.ajax({
                 url: '{% url 'register' %}',
                 type: 'POST',
@@ -181,8 +111,16 @@
                 },
                 success: function(data) {
                     if (data.success) {
-                        alert('Account created successfully! Please sign in.');
-                        window.location.href = '{% url 'signin' %}';
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Account created successfully! Please sign in.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '{% url 'signin' %}';
+                            }
+                        });
                     } else {
                         for (const [key, value] of Object.entries(data)) {
                             const errorElement = $(`#${key}-error`);
@@ -192,8 +130,23 @@
                         }
                     }
                 },
-                error: function() {
-                    passwordError.text('An error occurred. Please try again.').removeClass('hidden');
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    if (response) {
+                        for (const [key, value] of Object.entries(response)) {
+                            const errorElement = $(`#${key}-error`);
+                            if (errorElement.length) {
+                                errorElement.text(Array.isArray(value) ? value[0] : value).removeClass('hidden');
+                            }
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 },
                 complete: function() {
                     button.prop('disabled', false).html('Sign Up');

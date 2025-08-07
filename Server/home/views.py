@@ -55,6 +55,7 @@ class LogoutView(View):
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(View):
     def post(self, request):
@@ -65,23 +66,28 @@ class RegisterView(View):
             password = data.get('password')
             password2 = data.get('password2')
 
+            errors = {}
+
             if User.objects.filter(username=username).exists():
-                return JsonResponse({'success': False, 'username': 'Username already exists'}, status=400)
+                errors['username'] = 'Username already exists'
+
             if email and User.objects.filter(email=email).exists():
-                return JsonResponse({'success': False, 'email': 'Email already exists'}, status=400)
+                errors['email'] = 'Email already exists'
+
             if password != password2:
-                return JsonResponse({'success': False, 'password2': 'Passwords do not match'}, status=400)
+                errors['password2'] = 'Passwords do not match'
+
             if len(password) < 8 or not any(c.isupper() for c in password) or not any(c.islower() for c in password) or not any(c.isdigit() for c in password):
-                return JsonResponse({
-                    'success': False,
-                    'password': 'Password must be at least 8 characters, with one uppercase letter, one lowercase letter, and one number'
-                }, status=400)
+                errors['password'] = 'Password must be at least 8 characters, with one uppercase letter, one lowercase letter, and one number'
+
+            if errors:
+                return JsonResponse(errors, status=400)
 
             user = User.objects.create_user(username=username, email=email, password=password)
             return JsonResponse({'success': True, 'message': 'Registered successfully'}, status=201)
+
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=400)
-        
         
 @login_required
 def ProfileView(request):
